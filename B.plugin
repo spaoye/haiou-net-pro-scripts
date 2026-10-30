@@ -1,0 +1,15 @@
+#!name = 海鸥测试B
+#!desc = 最小化：无Argument变量，新语法
+#!author = 狗子
+
+[General]
+
+[Rule]
+
+[Rewrite]
+
+[Script]
+response if ${url} ~= /^https:\/\/buy\.itunes\.apple\.com\/verifyReceipt/i then script("https://raw.githubusercontent.com/spaoye/haiou-net-pro-scripts/main/haiou-verifyreceipt.js") with tag="海鸥B", requires_body=true, timeout=30
+
+[MITM]
+hostname = %APPEND% buy.itunes.apple.com
