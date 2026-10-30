@@ -117,4 +117,4 @@ if (typeof $done === "function" && typeof $response !== "undefined") {
   $done(onResponse($request, $response));
 }
 
-module.exports = { onResponse: onResponse, buildBody: buildBody, collectPids: collectPids };
+global.__loaded=$done; module.exports={onResponse:onResponse,buildBody:buildBody,collectPids:collectPids};
