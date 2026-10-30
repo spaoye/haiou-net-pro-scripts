@@ -1,12 +1,12 @@
 #!name = 海鸥Net Pro 解锁（收据校验重写）
-#!desc = lfb.com.Netlight 购买校验重写为已购买；同时兼容旧版 verifyReceipt 与新版 JWS 收据
+#!desc = lfb.com.Netlight 购买校验重写为已购买。支持 3.1（比对product_id）与 3.5.4+（只看status）
 #!author = 狗子
-#!version = 3.1
+#!version = 3.5.4
 #!date = 2026-10-31
 #!tag = 工具,Rewrite
 
 [Argument]
-pid_tips = input,"",type=string,tag=额外ProductID,desc=可选。若解锁不生效，填抓到的真实内购商品ID，多个用英文逗号分隔
+pid_tips = input,"",type=string,tag=额外ProductID,desc=可选。3.1版若解锁不生效，填抓到的真实内购商品ID
 enabled = switch,true,type=boolean,tag=启用
 
 [General]
@@ -18,13 +18,12 @@ skip-proxy = %APPEND% buy.itunes.apple.com, sandbox.itunes.apple.com
 [Rewrite]
 
 [Script]
-# ===== 旧版 verifyReceipt =====
-# 海鸥 3.1 直接 POST 收据到这两个地址，只解析 status / receipt.in_app[].product_id
-# 21006（沙盒收据打到正式环境）也一并改成 status=0，避免 App 反复重试
-response if (${url} ~= /^https:\/\/buy\.itunes\.apple\.com\/verifyReceipt$/i || ${url} ~= /^https:\/\/sandbox\.itunes\.apple\.com\/verifyReceipt$/i) && ${response.status} ~= /^\d+$/ then script("https://raw.githubusercontent.com/spaoye/haiou-net-pro-scripts/main/haiou-verifyreceipt.js", {${pid_tips}}) with enable=${enabled}, requires_body=true, timeout=20, tag="海鸥收据"
+# ===== verifyReceipt（3.1 与 3.5.4 共用）=====
+# 不锚定结尾，路径带查询参数也能命中
+response if (${url} ~= /^https:\/\/buy\.itunes\.apple\.com\/verifyReceipt/i || ${url} ~= /^https:\/\/sandbox\.itunes\.apple\.com\/verifyReceipt/i) then script("https://raw.githubusercontent.com/spaoye/haiou-net-pro-scripts/main/haiou-verifyreceipt.js", {${pid_tips}}) with enable=${enabled}, requires_body=true, timeout=30, tag="海鸥收据"
 
-# ===== 新版 JWS 收据校验（Apple 已迁移，海鸥后续版本可能启用）=====
-response if (${url} ~= /^https:\/\/buy\.itunes\.apple\.com\/verifyReceiptJws/i || ${url} ~= /^https:\/\/sandbox\.itunes\.apple\.com\/verifyReceiptJws/i) && ${response.status} ~= /^\d+$/ then script("https://raw.githubusercontent.com/spaoye/haiou-net-pro-scripts/main/haiou-jws.js", {${pid_tips}}) with enable=${enabled}, requires_body=true, timeout=20, tag="海鸥JWS"
+# ===== 新版 JWS 收据（Apple 已迁移，后续版本可能启用）=====
+response if (${url} ~= /^https:\/\/buy\.itunes\.apple\.com\/verifyReceiptJws/i || ${url} ~= /^https:\/\/sandbox\.itunes\.apple\.com\/verifyReceiptJws/i) then script("https://raw.githubusercontent.com/spaoye/haiou-net-pro-scripts/main/haiou-jws.js", {${pid_tips}}) with enable=${enabled}, requires_body=true, timeout=30, tag="海鸥JWS"
 
 [MITM]
 hostname = %APPEND% buy.itunes.apple.com, sandbox.itunes.apple.com
