@@ -1,22 +1,26 @@
-#!name = 海鸥Net Pro 解锁（收据校验重写）
-#!desc = lfb.com.Netlight 购买校验重写为已购买。兼容 3.1（比对product_id）与 3.5.4+（只看status）
+#!name = 海鸥Net Pro 解锁
+#!desc = lfb.com.Netlight 购买校验重写为已购买
 #!author = 狗子
 #!version = 3.5.4
 #!date = 2026-10-31
-#!tag = 工具,Rewrite
+#!tag = 工具
+#!type = normal
+#!loon_version = 3.5.1(983)
+
+[Argument]
+enabled = switch,true,type=boolean,tag=启用
 
 [General]
-skip-proxy = %APPEND% buy.itunes.apple.com, sandbox.itunes.apple.com
 
 [Rule]
 
 [Rewrite]
 
-[Script]
-http-response https:\/\/buy\.itunes\.apple\.com\/verifyReceipt script-path=https://raw.githubusercontent.com/spaoye/haiou-net-pro-scripts/main/haiou-verifyreceipt.js,tag=海鸥收据,requires-body=true,binary-body-mode=false,timeout=30
-http-response https:\/\/sandbox\.itunes\.apple\.com\/verifyReceipt script-path=https://raw.githubusercontent.com/spaoye/haiou-net-pro-scripts/main/haiou-verifyreceipt.js,tag=海鸥收据-沙盒,requires-body=true,binary-body-mode=false,timeout=30
-http-response https:\/\/buy\.itunes\.apple\.com\/verifyReceiptJws script-path=https://raw.githubusercontent.com/spaoye/haiou-net-pro-scripts/main/haiou-jws.js,tag=海鸥JWS,requires-body=true,binary-body-mode=false,timeout=30
-http-response https:\/\/sandbox\.itunes\.apple\.com\/verifyReceiptJws script-path=https://raw.githubusercontent.com/spaoye/haiou-net-pro-scripts/main/haiou-jws.js,tag=海鸥JWS-沙盒,requires-body=true,binary-body-mode=false,timeout=30
+[Host]
 
-[MITM]
+[Script]
+response if ${url} ~= /^https:\/\/buy\.itunes\.apple\.com\/verifyReceipt/i && ${response.status} ~= /^\d+$/ then script("https://cdn.jsdelivr.net/gh/spaoye/haiou-net-pro-scripts@main/haiou-verifyreceipt.js") with enable=${enabled}, requires_body=true, timeout=30, tag="海鸥收据"
+response if ${url} ~= /^https:\/\/sandbox\.itunes\.apple\.com\/verifyReceipt/i && ${response.status} ~= /^\d+$/ then script("https://cdn.jsdelivr.net/gh/spaoye/haiou-net-pro-scripts@main/haiou-verifyreceipt.js") with enable=${enabled}, requires_body=true, timeout=30, tag="海鸥收据-沙盒"
+
+[Mitm]
 hostname = %APPEND% buy.itunes.apple.com, sandbox.itunes.apple.com
