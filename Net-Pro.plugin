@@ -1,16 +1,11 @@
 #!name = 海鸥Net Pro 解锁（收据校验重写）
-#!desc = lfb.com.Netlight 购买校验重写为已购买。支持 3.1（比对product_id）与 3.5.4+（只看status）
+#!desc = lfb.com.Netlight 购买校验重写为已购买。兼容 3.1（比对product_id）与 3.5.4+（只看status）
 #!author = 狗子
 #!version = 3.5.4
 #!date = 2026-10-31
 #!tag = 工具,Rewrite
 
-[Argument]
-pid_tips = input,"",type=string,tag=额外ProductID,desc=可选。3.1版若解锁不生效，填抓到的真实内购商品ID
-enabled = switch,true,type=boolean,tag=启用
-
 [General]
-bypass-tunnel-reminder = true
 skip-proxy = %APPEND% buy.itunes.apple.com, sandbox.itunes.apple.com
 
 [Rule]
@@ -18,12 +13,10 @@ skip-proxy = %APPEND% buy.itunes.apple.com, sandbox.itunes.apple.com
 [Rewrite]
 
 [Script]
-# ===== verifyReceipt（3.1 与 3.5.4 共用）=====
-# 不锚定结尾，路径带查询参数也能命中
-response if (${url} ~= /^https:\/\/buy\.itunes\.apple\.com\/verifyReceipt/i || ${url} ~= /^https:\/\/sandbox\.itunes\.apple\.com\/verifyReceipt/i) then script("https://raw.githubusercontent.com/spaoye/haiou-net-pro-scripts/main/haiou-verifyreceipt.js", {${pid_tips}}) with enable=${enabled}, requires_body=true, timeout=30, tag="海鸥收据"
-
-# ===== 新版 JWS 收据（Apple 已迁移，后续版本可能启用）=====
-response if (${url} ~= /^https:\/\/buy\.itunes\.apple\.com\/verifyReceiptJws/i || ${url} ~= /^https:\/\/sandbox\.itunes\.apple\.com\/verifyReceiptJws/i) then script("https://raw.githubusercontent.com/spaoye/haiou-net-pro-scripts/main/haiou-jws.js", {${pid_tips}}) with enable=${enabled}, requires_body=true, timeout=30, tag="海鸥JWS"
+http-response https:\/\/buy\.itunes\.apple\.com\/verifyReceipt script-path=https://raw.githubusercontent.com/spaoye/haiou-net-pro-scripts/main/haiou-verifyreceipt.js,tag=海鸥收据,requires-body=true,binary-body-mode=false,timeout=30
+http-response https:\/\/sandbox\.itunes\.apple\.com\/verifyReceipt script-path=https://raw.githubusercontent.com/spaoye/haiou-net-pro-scripts/main/haiou-verifyreceipt.js,tag=海鸥收据-沙盒,requires-body=true,binary-body-mode=false,timeout=30
+http-response https:\/\/buy\.itunes\.apple\.com\/verifyReceiptJws script-path=https://raw.githubusercontent.com/spaoye/haiou-net-pro-scripts/main/haiou-jws.js,tag=海鸥JWS,requires-body=true,binary-body-mode=false,timeout=30
+http-response https:\/\/sandbox\.itunes\.apple\.com\/verifyReceiptJws script-path=https://raw.githubusercontent.com/spaoye/haiou-net-pro-scripts/main/haiou-jws.js,tag=海鸥JWS-沙盒,requires-body=true,binary-body-mode=false,timeout=30
 
 [MITM]
 hostname = %APPEND% buy.itunes.apple.com, sandbox.itunes.apple.com
